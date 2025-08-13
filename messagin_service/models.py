@@ -39,4 +39,25 @@ class Mailings(models.Model):
     message = models.ForeignKey('Message', on_delete=models.CASCADE)
     recipient = models.ManyToManyField(Recipient)
 
+    class Meta:
+        verbose_name = "Рассылка"
+        verbose_name_plural = "Рассылки"
 
+
+class Attempt(models.Model):
+    STATUS_CHOICES = [
+        ('SUCCESS', "Успешно"),
+        ('FAILURE', "Неуспешно"),
+    ]
+
+    attempt_time = models.DateTimeField(auto_now_add=True, verbose_name="Время попытки")
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, verbose_name="Статус попытки")
+    server_response = models.TextField(
+        blank=True, null=True, verbose_name="Ответ сервера")
+    mailing = models.ForeignKey(
+        Mailings, on_delete=models.CASCADE, verbose_name="Рассылка")
+
+    class Meta:
+        verbose_name = "Попытка рассылки"
+        verbose_name_plural = "Попытки рассылки"
