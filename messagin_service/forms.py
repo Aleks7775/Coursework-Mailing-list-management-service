@@ -6,7 +6,8 @@ from messagin_service.models import Recipient
 class ClientForm(ModelForm):
     class Meta:
         model = Recipient
-        fields = '__all__'
+        fields = ['email', 'full_name', 'comment']
+        # exclude = ('owner')
 
     def __init__(self, *args, **kwargs):
         super(ClientForm, self).__init__(*args, **kwargs)

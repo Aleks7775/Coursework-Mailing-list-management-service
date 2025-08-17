@@ -1,33 +1,24 @@
 import secrets
+from django.contrib.auth.decorators import permission_required
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView
+from django.views.generic import CreateView, ListView
 
 from config.settings import EMAIL_HOST_USER
-from users.forms import UserRegisterForms
+from messagin_service.models import Mailings
+from users.forms import UserRegisterForms, UserForm
 from users.models import User
-import secrets
 
 
-class UserCreateView(CreateView):
+class RegisterView(CreateView):
+    """Регистрация с подтверждением письма с токеном по почте """
     model = User
     form_class = UserRegisterForms
-    success_url = reverse_lazy('messagin_service:home')
+    success_url = reverse_lazy('users:login')
 
-    # def form_valid(self, form):
-    #     user = form.save()
-    #     self.send_welcome_email(user.email)
-    #     return super().form_valid(form)
-    #
-    # def send_welcome_email(self, user_email):
-    #     subject = 'Добро пожаловать в наш сервис'
-    #     message = 'Спасибо, что зарегистрировались в нашем сервисе!'
-    #     from_email = 'feat9999@yandex.ru'
-    #     recipient_list = [user_email]
-    #     send_mail(subject, message, from_email, recipient_list)
-
-    def form_invalid(self, form):
+    def form_valid(self, form):
         user = form.save()
         user.is_active = False
         token = secrets.token_hex(16)
@@ -45,7 +36,37 @@ class UserCreateView(CreateView):
 
 
 def email_verification(request, token):
+    """Подтверждение токена из письма"""
     user = get_object_or_404(User, token=token)
     user.is_active = True
     user.save()
-    return redirect(reverse('users:home'))
+    return redirect(reverse('users:login'))
+
+
+class UserListView(ListView):
+    model = User
+    fields = ['email', 'phone', 'country']
+    template_name = "users/user_list.html"
+
+    def get_queryset(self):
+        user = self.request.user
+        # print(user.get_all_permissions())
+        if user.has_perm("users.view_user"):
+            return User.objects.all()
+        raise PermissionDenied
+
+
+@permission_required('users.can_block_user')
+def block_user(request, user_id):
+    # Получаем пользователя по ID
+    user = get_object_or_404(User, id=user_id)
+    # Блокируем пользователя
+    user.is_active = False
+    user.save()
+    return redirect('users:user_list')
+
+
+@permission_required('messagin_service.disabling_mailings')
+def deactivate_all_campaigns(request):
+    Mailings.objects.update(status='FINISHED')
+    return redirect('users:user_list')

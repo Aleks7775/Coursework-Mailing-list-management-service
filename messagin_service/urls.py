@@ -1,8 +1,10 @@
 from django.urls import path
+
 from messagin_service.apps import MessaginServiceConfig
 from messagin_service.views import (HomeListView, ClientListView, ClientCreateView, ClientUpdateView, ClientDeleteView,
                                     MessageListView, MessageCreateView, MessageUpdateView, MessageDeleteView,
-                                    MailingsListView, MailingsCreateView, MailingsUpdateView, MailingsDeleteView)
+                                    MailingsListView, MailingsCreateView, MailingsUpdateView, MailingsDeleteView,
+                                    AttemptListView, run_custom_command)
 
 app_name = MessaginServiceConfig.name
 
@@ -19,5 +21,8 @@ urlpatterns = [
     path('mailings/', MailingsListView.as_view(), name='mailings_list'),
     path('mailings/create/', MailingsCreateView.as_view(), name='mailings_create'),
     path('mailings/<int:pk>/update/', MailingsUpdateView.as_view(), name='mailings_update'),
-    path('mailings/<int:pk>/delete/', MailingsDeleteView.as_view(), name='mailings_delete')
+    path('mailings/<int:pk>/delete/', MailingsDeleteView.as_view(), name='mailings_delete'),
+    path('attempt', AttemptListView.as_view(), name='mailing_attempts'),
+    path('run-command/', run_custom_command, name='run_command')
+
 ]

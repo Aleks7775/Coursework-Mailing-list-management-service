@@ -1,0 +1,26 @@
+{% extends 'messagin_service/base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row text-center">
+        <div class="col-3">
+            <div class="card mb-3 box-shadow">
+                <div class="card-header">
+                    </div>
+                        <div class="card-body">
+                        <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                        <li>-Пользователь: {{ user.email }}</li>
+                        <li>-Количество успешных рассылок: {{ successful_mailings }}</li>
+                        <li>-Количество не успешных рассылок: {{ not_successful_mailings }}</li>
+                        <li>-Количество отправленных сообщений: {{ total_mailings }}</li>
+                        </div>
+                    </div>
+                    <form action="{% url 'messagin_service:run_command' %}" method="post">
+                    {% csrf_token %}
+                        <button type="submit">Запустить команду</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
