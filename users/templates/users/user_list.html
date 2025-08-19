@@ -1,0 +1,27 @@
+{% extends 'messagin_service/base.html' %}
+{% block content %}
+<div class="container">
+    <div class="row text-center">
+        <div class="col-3">
+        {% for user in object_list %}
+            <div class="card mb-3 box-shadow">
+                <div class="card-header">
+                    </div>
+                        <div class="card-body">
+                        <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                        <li>- {{ user.email }}</li>
+                        <li>- {{ user.phone }}</li>
+                        <li>- {{ user.country }}</li>
+                        </ul>
+                            <form action="{% url 'users:block_user' user.id %}" method="post">
+                                {% csrf_token %}
+                                <button type="submit" class="p-2 btn btn-outline-primary">Блокировать пользователя</button>
+                            </form>
+                        </div>
+                </div>
+        {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
