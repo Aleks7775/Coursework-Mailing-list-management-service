@@ -1,6 +1,6 @@
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import path
-from users.views import RegisterView, email_verification, UserListView, block_user, deactivate_all_campaigns
+from users.views import (RegisterView, email_verification, UserListView, block_user)
 from django.contrib.auth import views as auth_views
 
 from users.apps import UsersConfig
@@ -18,6 +18,4 @@ urlpatterns = [
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('user/', UserListView.as_view(), name='user_list'),
     path('block_user/<int:user_id>/', block_user, name='block_user'),
-    path('deactivate_all_campaigns/', deactivate_all_campaigns, name='deactivate_all_campaigns')
-
-]
+    ]

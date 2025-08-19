@@ -1,3 +1,4 @@
+import os
 import secrets
 from django.contrib.auth.decorators import permission_required
 from django.core.exceptions import PermissionDenied
@@ -7,9 +8,11 @@ from django.urls import reverse_lazy, reverse
 from django.views.generic import CreateView, ListView
 
 from config.settings import EMAIL_HOST_USER
-from messagin_service.models import Mailings
-from users.forms import UserRegisterForms, UserForm
+from users.forms import UserRegisterForms
 from users.models import User
+
+from django.contrib.auth.views import (PasswordResetView, PasswordResetDoneView,
+                                       PasswordResetConfirmView, PasswordResetCompleteView,)
 
 
 class RegisterView(CreateView):
@@ -29,7 +32,7 @@ class RegisterView(CreateView):
         send_mail(
             subject='Подтверждение почты',
             message=f'Перейдите по ссылке для подтверждения регистрации {url}',
-            from_email=EMAIL_HOST_USER,
+            from_email= os.getenv('EMAIL_HOST_USER'),
             recipient_list=[user.email]
         )
         return super().form_valid(form)
@@ -66,7 +69,21 @@ def block_user(request, user_id):
     return redirect('users:user_list')
 
 
-@permission_required('messagin_service.disabling_mailings')
-def deactivate_all_campaigns(request):
-    Mailings.objects.update(status='FINISHED')
-    return redirect('users:user_list')
+class CustomPasswordResetView(PasswordResetView):
+    template_name = "users/password_reset_form.html"
+    email_template_name = "users/password_reset_email.html"
+    subject_template_name = "users/password_reset_subject.html"
+    success_url = "/users/password_reset/done/"
+
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = "users/password_reset_done.html"
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = "users/password_reset_confirm.html"
+    success_url = "/users/reset/done/"
+
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = "users/password_reset_complete.html"

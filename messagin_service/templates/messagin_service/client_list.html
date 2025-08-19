@@ -13,8 +13,10 @@
                         <li>- {{ client.email }}</li>
                         <li>- {{ client.full_name }}</li>
                         <li>- {{ client.comment }}</li></ul>
+                        {% if client.owner == user %}
                         <a class="btn btn-primary" href="{% url 'messagin_service:client_update' client.pk %}" role="button">Редактировать</a>
                         <a class="btn btn-primary" href="{% url 'messagin_service:client_delete' client.pk %}" role="button">Удалить</a>
+                        {% endif %}
                         </div>
                 </div>
         {% endfor %}

@@ -3,10 +3,6 @@
 <div class="container">
     <div class="row text-center">
         <div class="col-3">
-            <form action="{% url 'users:deactivate_all_campaigns' %}" method="post">
-    {% csrf_token %}
-    <button type="submit" class="p-2 btn btn-outline-primary">Отключить все рассылки</button>
-</form>
         {% for user in object_list %}
             <div class="card mb-3 box-shadow">
                 <div class="card-header">

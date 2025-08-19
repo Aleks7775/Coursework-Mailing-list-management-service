@@ -62,12 +62,21 @@ TEMPLATES = [
 WSGI_APPLICATION = 'config.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
+DATABASES = {'default': {
+             'ENGINE': 'django.db.backends.postgresql_psycopg2',
+             'NAME': os.getenv('DATABASE_NAME'),
+             'USER': os.getenv('DATABASE_USER'),
+             'PASSWORD': os.getenv('PASSWORD'),
+             'HOST': os.getenv('HOST'),
+             'PORT': os.getenv('PORT'),
+             }}
 
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -115,12 +124,12 @@ LOGOUT_REDIRECT_URL = '/'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
-EMAIL_USE_TLS = os.getenv('EMAIL_HOST_USER')
-EMAIL_USE_SSL = os.getenv('EMAIL_USE_TLS')
+EMAIL_USE_TLS = False
+EMAIL_USE_SSL = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-SERVER_EMAIL = EMAIL_HOST_USER
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
+SERVER_EMAIL = os.getenv('EMAIL_HOST_USER')
 
 CACHE_ENABLE = True
 if CACHE_ENABLE:

@@ -12,6 +12,7 @@ requests = "^2.32.4"
 pillow = "^11.3.0"
 redis = "^6.4.0"
 python-dotenv = "^1.1.1"
+psycopg2-binary = "^2.9.10"
 
 
 [tool.poetry.group.lint.dependencies]

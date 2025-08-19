@@ -10,13 +10,26 @@
                     </div>
                         <div class="card-body">
                         <ul class="list-unstyled mt-3 mb-4 text-start m-3">
+                        <li>- Владелец: {{ mailings.owner }}</li>
                         <li>- {{ mailings.date_first }}</li>
                         <li>- {{ mailings.date_end }}</li>
-                        <li>- {{ mailings.status }}</li>
-                        <li>- {{ mailings.message }}</li>
-                        <li>- {{ mailings.recipient }}</li>
+                        <li>- Статус: {{ mailings.status }}</li>
+                        <li>- Тема сообщения: {{ mailings.message }}</li>
+                        {% for client in mailings.recipient.all %}
+                        <li>- Клиент: {{ client }}</li>
+                        {% endfor %}
                         <a class="btn btn-primary" href="{% url 'messagin_service:mailings_update' mailings.pk %}" role="button">Редактировать</a>
                         <a class="btn btn-primary" href="{% url 'messagin_service:mailings_delete' mailings.pk %}" role="button">Удалить</a>
+                        <form action="{% url 'messagin_service:run_command' %}" method="post">
+                            {% csrf_token %}
+                        <button type="submit" class="p-2 btn btn-outline-primary">Запустить рассылку</button>
+                        </form>
+                        {% if perms.users.view_user %}
+                        <form action="{% url 'messagin_service:deactivate_campaign' mailings.id %}" method="post">
+                            {% csrf_token %}
+                        <button type="submit" class="p-2 btn btn-outline-primary">Отключить рассылку</button>
+                        </form>
+                        {% endif %}
                         </div>
                 </div>
         {% endfor %}

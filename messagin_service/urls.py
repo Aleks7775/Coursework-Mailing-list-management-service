@@ -4,7 +4,7 @@ from messagin_service.apps import MessaginServiceConfig
 from messagin_service.views import (HomeListView, ClientListView, ClientCreateView, ClientUpdateView, ClientDeleteView,
                                     MessageListView, MessageCreateView, MessageUpdateView, MessageDeleteView,
                                     MailingsListView, MailingsCreateView, MailingsUpdateView, MailingsDeleteView,
-                                    AttemptListView, run_custom_command)
+                                    AttemptListView, run_custom_command, deactivate_campaign)
 
 app_name = MessaginServiceConfig.name
 
@@ -23,6 +23,7 @@ urlpatterns = [
     path('mailings/<int:pk>/update/', MailingsUpdateView.as_view(), name='mailings_update'),
     path('mailings/<int:pk>/delete/', MailingsDeleteView.as_view(), name='mailings_delete'),
     path('attempt', AttemptListView.as_view(), name='mailing_attempts'),
-    path('run-command/', run_custom_command, name='run_command')
+    path('run-command/', run_custom_command, name='run_command'),
+    path('deactivate_campaign/<int:mailing_id>/', deactivate_campaign, name='deactivate_campaign')
 
 ]

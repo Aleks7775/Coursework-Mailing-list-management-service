@@ -4,6 +4,7 @@ from users.models import User
 
 
 admin.site.register(Mailings)
+admin.site.register(Message)
 
 
 @admin.register(Recipient)

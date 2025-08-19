@@ -14,9 +14,6 @@ class Recipient(models.Model):
     class Meta:
         verbose_name = "Клиент"
         verbose_name_plural = "Клиенты"
-        permissions = [
-            ('can_view_client', 'Просмотр всех клиентов')
-        ]
 
     def __str__(self):
         return self.full_name
@@ -32,9 +29,6 @@ class Message(models.Model):
     class Meta:
         verbose_name = "Сообщение"
         verbose_name_plural = "Сообщения"
-        permissions = [
-            ('can_view_message', 'Просмотр всех сообщений')
-        ]
 
     def __str__(self):
         return self.subject
@@ -53,13 +47,14 @@ class Mailings(models.Model):
         default='CREATED', verbose_name='Статус')
     message = models.ForeignKey('Message', on_delete=models.CASCADE)
     recipient = models.ManyToManyField(Recipient)
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, verbose_name="Владелец", null=True
+    )
 
     class Meta:
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
         permissions = [
-            ('can_view_mailings', 'Просмотр всех рассылок.'),
-            ('can_block_user', 'Блокировка пользователей'),
             ('disabling_mailings', 'Отключение рассылок')
         ]
 

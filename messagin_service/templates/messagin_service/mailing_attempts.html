@@ -14,9 +14,6 @@
                         <li>-Количество отправленных сообщений: {{ total_mailings }}</li>
                         </div>
                     </div>
-                    <form action="{% url 'messagin_service:run_command' %}" method="post">
-                    {% csrf_token %}
-                        <button type="submit">Запустить команду</button>
                     </form>
                 </div>
             </div>

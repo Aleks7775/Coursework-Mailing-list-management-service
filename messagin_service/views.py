@@ -6,6 +6,8 @@ from django.urls import reverse_lazy
 from messagin_service.forms import ClientForm
 from django.http import HttpResponse
 from django.core.management import call_command
+from django.contrib.auth.decorators import permission_required
+from django.shortcuts import get_object_or_404, redirect
 
 
 class HomeListView(ListView):
@@ -26,15 +28,15 @@ class ClientListView(ListView):
 
     def get_queryset(self):
         user = self.request.user
-        key = f"client_list{user.id}"  # Уникальный ключ для каждого пользователя
+        key = f"client_list{user.id}"
 
-        # Попытка получить данные из кэша
+        """Попытка получить данные из кэша"""
         queryset = cache.get(key)
         if queryset is not None:
             return queryset
 
-        # Логика фильтрации
-        if self.request.user.has_perm("users.can_view_all") or user.has_perm('messagin_service.can_view_client'):
+        """Логика фильтрации"""
+        if user.has_perm('messagin_service.view_recipient'):
             queryset = Recipient.objects.all()
         else:
             queryset = Recipient.objects.filter(owner=self.request.user)
@@ -44,9 +46,10 @@ class ClientListView(ListView):
         return queryset
 
     # def get_queryset(self):
-    #     """Фильтрация создание, просмотр, редактирование и удаление своих клиентов и рассылок"""
+    """Без использовании кэша"""
     #     user = self.request.user
-    #     if self.request.user.has_perm("users.can_view_all") or user.has_perm('messagin_service.can_view_client'):
+    #     print(user.get_all_permissions())
+    #     if user.has_perm('messagin_service.view_recipient'):
     #         return Recipient.objects.all()
     #     return Recipient.objects.filter(owner=self.request.user)
 
@@ -92,9 +95,17 @@ class MessageListView(ListView):
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
-    fields = ['subject', 'body', 'owner']
+    fields = ['subject', 'body']
     template_name = 'messagin_service/message_form.html'
     success_url = reverse_lazy('messagin_service:message_list')
+
+    def form_valid(self, form):
+        message = form.save()
+        user = self.request.user
+        message.owner = user
+        message.save()
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
 class MessageUpdateView(LoginRequiredMixin, UpdateView):
@@ -114,12 +125,28 @@ class MailingsListView(ListView):
     model = Mailings
     template_name = 'messagin_service/mailings_list.html'
 
+    def get_queryset(self):
+        """Может просматривать только создатель и пользователь у которого есть права"""
+        user = self.request.user
+        # print(user.get_all_permissions())
+        if user.has_perm('messagin_service.view_mailings'):
+            return Mailings.objects.all()
+        return Mailings.objects.filter(owner=self.request.user)
+
 
 class MailingsCreateView(LoginRequiredMixin, CreateView):
     model = Mailings
     fields = ['date_first', 'date_end', 'status', 'message', 'recipient']
     template_name = 'messagin_service/mailings_form.html'
     success_url = reverse_lazy('messagin_service:mailings_list')
+
+    def form_valid(self, form):
+        mailings = form.save()
+        user = self.request.user
+        mailings.owner = user
+        mailings.save()
+        form.instance.user = self.request.user
+        return super().form_valid(form)
 
 
 class MailingsUpdateView(LoginRequiredMixin, UpdateView):
@@ -151,6 +178,14 @@ class AttemptListView(ListView):
         context['attempts'] = attempts
         context['user'] = self.request.user
         return context
+
+
+@permission_required('messagin_service.disabling_mailings')
+def deactivate_campaign(request, mailing_id):
+    mailing = get_object_or_404(Mailings, id=mailing_id)
+    mailing.status = 'FINISHED'
+    mailing.save()
+    return redirect('messagin_service:mailings_list')
 
 
 def run_custom_command(request):
